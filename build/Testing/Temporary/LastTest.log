@@ -1,28 +1,22 @@
-Start testing: Sep 20 19:07 UTC
+Start testing: Sep 20 21:09 UTC
 ----------------------------------------------------------
 1/1 Testing: public_tests
 1/1 Test: public_tests
 Command: "/mnt/build/public_tests"
 Directory: /mnt/build
-"public_tests" start time: Sep 20 19:07 UTC
+"public_tests" start time: Sep 20 21:09 UTC
 Output:
 ----------------------------------------------------------
-FAIL: one short chunk per document
-FAIL: DF is number of chunks containing term
-FAIL: term frequency retained in posting
 FAIL: query returns candidate union
 FAIL: coverage/frequency ranking
 FAIL: context truncates final selected chunk at token budget
-FAIL: 121 tokens creates overlapping second chunk
-FAIL: hard limit and 20-token overlap
-FAIL: negative k throws invalid_argument
-9 public test(s) failed.
+3 public test(s) failed.
 <end of output>
-Test time =   0.04 sec
+Test time =   0.03 sec
 ----------------------------------------------------------
 Test Failed.
-"public_tests" end time: Sep 20 19:07 UTC
+"public_tests" end time: Sep 20 21:09 UTC
 "public_tests" time elapsed: 00:00:00
 ----------------------------------------------------------
 
-End testing: Sep 20 19:07 UTC
+End testing: Sep 20 21:09 UTC

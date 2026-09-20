@@ -161,9 +161,9 @@ namespace aiws
         return normalizedText;
     }
 
-    static std::string join(const std::vector<TokenInfo> &tokens,
-                            std::size_t begin,
-                            std::size_t end)
+    std::string TextProcessor::join(const std::vector<TokenInfo> &tokens,
+                                    std::size_t begin,
+                                    std::size_t end)
     {
         // TODO: join the requested token range into normalized text.
 
@@ -189,9 +189,9 @@ namespace aiws
         }
     }
 
-    static std::string join(const std::vector<std::string> &tokens,
-                            std::size_t begin,
-                            std::size_t end)
+    std::string TextProcessor::join(const std::vector<std::string> &tokens,
+                                    std::size_t begin,
+                                    std::size_t end)
     {
         // TODO: join the requested term range into normalized text.
 

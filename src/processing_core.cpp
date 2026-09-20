@@ -104,7 +104,40 @@ namespace aiws
     {
         // TODO: return the ranked results for the requested query.
 
-        return {};
+        if (k < 0)
+        {
+            throw std::invalid_argument("Invalid Input: k is negative");
+        }
+
+        std::vector<std::string> queryTerms = normalizeQuery(query);
+
+                return {};
+    }
+
+    // Helper Function designed to remove repeated query words
+    std::vector<std::string> ProcessingCore::normalizeQuery(const std::string &query) const
+    {
+        std::vector<std::string> rawTerms = TextProcessor::terms(query);
+
+        std::vector<std::string> cleanTerms;
+
+        for (int i = 0; i < rawTerms.size(); i++)
+        {
+            bool termAlreadyAdded = false;
+            for (int j = 0; j < cleanTerms.size(); j++)
+            {
+                if (cleanTerms.at(j) == rawTerms.at(i))
+                {
+                    termAlreadyAdded = true;
+                }
+            }
+            if (!termAlreadyAdded)
+            {
+                cleanTerms.push_back(rawTerms.at(i));
+            }
+        }
+
+        return cleanTerms;
     }
 
     /*
