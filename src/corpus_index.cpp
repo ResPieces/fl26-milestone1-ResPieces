@@ -1,5 +1,6 @@
 #include "aiws/corpus_index.hpp"
 #include <stdexcept>
+#include "aiws/text_processor.hpp"
 
 namespace aiws
 {

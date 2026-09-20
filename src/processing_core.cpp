@@ -1,4 +1,5 @@
 #include "aiws/processing_core.hpp"
+#include "aiws/text_processor.hpp"
 #include <stdexcept>
 
 namespace aiws
