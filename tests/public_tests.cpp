@@ -34,7 +34,6 @@ int main()
 {
     using namespace aiws;
 
-    /*
     check(ProcessingCore::normalize("Hello,  WORLD! 2026") == "hello world 2026",
           "normalization contract");
     check(ProcessingCore::normalize("...\t---").empty(), "separator-only input");
@@ -65,16 +64,22 @@ int main()
           "hard limit and 20-token overlap");
 
     bool negative_threw = false;
-    try { (void)core.search("w1", -1); }
-    catch (const std::invalid_argument&) { negative_threw = true; }
+    try
+    {
+        (void)core.search("w1", -1);
+    }
+    catch (const std::invalid_argument &)
+    {
+        negative_threw = true;
+    }
     check(negative_threw, "negative k throws invalid_argument");
 
-    if (failures == 0) {
+    if (failures == 0)
+    {
         std::cout << "All public tests passed.\n";
         return 0;
     }
     std::cerr << failures << " public test(s) failed.\n";
-    */
 
     return 1;
 }

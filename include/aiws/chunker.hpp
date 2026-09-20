@@ -2,26 +2,30 @@
 
 #include "aiws/document.hpp"
 #include "aiws/processing_types.hpp"
+#include "aiws/text_processor.hpp"
 
 #include <cstddef>
 #include <vector>
 
-namespace aiws {
+namespace aiws
+{
 
-struct ChunkingPolicy {
-    std::size_t max_tokens{120};
-    std::size_t overlap{20};
-    std::size_t paragraph_window{20};
-};
+    struct ChunkingPolicy
+    {
+        std::size_t max_tokens{120};
+        std::size_t overlap{20};
+        std::size_t paragraph_window{20};
+    };
 
-class Chunker {
-public:
-    explicit Chunker(ChunkingPolicy policy = {});
-    std::vector<Chunk> chunk(const Document& document,
-                             std::size_t document_order) const;
+    class Chunker
+    {
+    public:
+        explicit Chunker(ChunkingPolicy policy = {});
+        std::vector<Chunk> chunk(const Document &document,
+                                 std::size_t document_order) const;
 
-private:
-    ChunkingPolicy policy_;
-};
+    private:
+        ChunkingPolicy policy_;
+    };
 
-}  // namespace aiws
+} // namespace aiws
