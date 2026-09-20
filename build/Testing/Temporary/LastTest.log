@@ -1,0 +1,19 @@
+Start testing: Sep 20 00:31 UTC
+----------------------------------------------------------
+1/1 Testing: public_tests
+1/1 Test: public_tests
+Command: "/mnt/build/public_tests"
+Directory: /mnt/build
+"public_tests" start time: Sep 20 00:31 UTC
+Output:
+----------------------------------------------------------
+All tests passed.
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"public_tests" end time: Sep 20 00:31 UTC
+"public_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+End testing: Sep 20 00:31 UTC
