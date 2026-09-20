@@ -2,45 +2,50 @@
 
 #include "aiws/processing_types.hpp"
 #include "aiws/workspace.hpp"
+#include "aiws/text_processor.hpp"
+#include "aiws/corpus_index.hpp"
+#include "aiws/chunker.hpp"
 
 #include <cstddef>
 #include <memory>
 #include <string>
 #include <vector>
 
-namespace aiws {
+namespace aiws
+{
 
-class ProcessingCore {
-public:
-    static constexpr std::size_t kMaxChunkTokens = 120;
-    static constexpr std::size_t kChunkOverlap = 20;
-    static constexpr std::size_t kParagraphPreferenceWindow = 20;
+    class ProcessingCore
+    {
+    public:
+        static constexpr std::size_t kMaxChunkTokens = 120;
+        static constexpr std::size_t kChunkOverlap = 20;
+        static constexpr std::size_t kParagraphPreferenceWindow = 20;
 
-    ProcessingCore();
-    ~ProcessingCore();
-    ProcessingCore(ProcessingCore&&) noexcept;
-    ProcessingCore& operator=(ProcessingCore&&) noexcept;
-    ProcessingCore(const ProcessingCore&) = delete;
-    ProcessingCore& operator=(const ProcessingCore&) = delete;
+        ProcessingCore();
+        ~ProcessingCore();
+        ProcessingCore(ProcessingCore &&) noexcept;
+        ProcessingCore &operator=(ProcessingCore &&) noexcept;
+        ProcessingCore(const ProcessingCore &) = delete;
+        ProcessingCore &operator=(const ProcessingCore &) = delete;
 
-    static std::string normalize(const std::string& text);
+        static std::string normalize(const std::string &text);
 
-    void rebuild(const Workspace& workspace);
-    const std::vector<Chunk>& chunks() const noexcept;
-    std::size_t chunk_count() const noexcept;
+        void rebuild(const Workspace &workspace);
+        const std::vector<Chunk> &chunks() const noexcept;
+        std::size_t chunk_count() const noexcept;
 
-    std::size_t document_frequency(const std::string& term) const;
-    std::size_t term_frequency(const std::string& term,
-                               const std::string& chunk_id) const;
+        std::size_t document_frequency(const std::string &term) const;
+        std::size_t term_frequency(const std::string &term,
+                                   const std::string &chunk_id) const;
 
-    std::vector<SearchResult> search(const std::string& query, int k) const;
-    std::vector<ContextItem> build_context(const std::string& query,
-                                           int k,
-                                           std::size_t token_budget) const;
+        std::vector<SearchResult> search(const std::string &query, int k) const;
+        std::vector<ContextItem> build_context(const std::string &query,
+                                               int k,
+                                               std::size_t token_budget) const;
 
-private:
-    struct Impl;
-    std::unique_ptr<Impl> impl_;
-};
+    private:
+        struct Impl;
+        std::unique_ptr<Impl> impl_;
+    };
 
-}  // namespace aiws
+} // namespace aiws
