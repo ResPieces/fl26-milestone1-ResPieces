@@ -1,4 +1,5 @@
 #include "aiws/processing_core.hpp"
+#include <stdexcept>
 
 namespace aiws
 {
@@ -111,7 +112,7 @@ namespace aiws
 
         std::vector<std::string> queryTerms = normalizeQuery(query);
 
-                return {};
+        return {};
     }
 
     // Helper Function designed to remove repeated query words
