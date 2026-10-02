@@ -1,6 +1,7 @@
 #include "aiws/processing_core.hpp"
 #include "aiws/text_processor.hpp"
 #include <stdexcept>
+#include <algorithm>
 
 namespace aiws
 {
@@ -110,10 +111,104 @@ namespace aiws
         {
             throw std::invalid_argument("Invalid Input: k is negative");
         }
+        else if (k == 0)
+        {
+            return {};
+        }
 
         std::vector<std::string> queryTerms = normalizeQuery(query);
 
-        return {};
+        if (queryTerms.empty())
+        {
+            return {};
+        }
+
+        // Pick out the chunks that matter for searches
+        std::vector<Chunk> relaventChunks;
+
+        for (const Chunk &chunk : impl_->chunks)
+        {
+            for (const std::string &term : queryTerms)
+            {
+                std::size_t freq = impl_->index.term_frequency(term, chunk.id);
+
+                if (freq > 0)
+                {
+                    relaventChunks.push_back(chunk);
+                    break;
+                }
+            }
+        }
+
+        std::vector<SearchResult> results;
+
+        double N = impl_->chunks.size();
+        double Q = queryTerms.size();
+
+        for (const Chunk &chunk : relaventChunks)
+        {
+            double baseScore;
+            std::size_t matched = 0;
+
+            for (const std::string &term : queryTerms)
+            {
+                std::size_t freq = impl_->index.term_frequency(term, chunk.id);
+
+                if (freq > 0)
+                {
+                    matched++;
+
+                    double tf = 1.0 + std::log(freq);
+                    double df = impl_->index.document_frequency(term);
+                    double idf = std::log((N + 1.0) / (df + 1.0)) + 1.0;
+
+                    baseScore += tf * idf;
+                }
+            }
+
+            double coverage = 1.0 + 0.1 * matched / Q;
+            double score = baseScore * coverage;
+
+            score = std::round(score * 1e12) / 1e12;
+
+            SearchResult curResult;
+            curResult.chunk_id = chunk.id;
+            curResult.document_id = chunk.document_id;
+            curResult.chunk_sequence = chunk.sequence;
+            curResult.text = chunk.text;
+            curResult.score = score;
+            curResult.matched_terms = matched;
+
+            results.push_back(curResult);
+        }
+
+        std::sort(results.begin(), results.end(), [this](const SearchResult &res1, const SearchResult &res2)
+                  {
+                      // 1. Descending score
+                      if (res1.score != res2.score)
+                      {
+                          return res1.score > res2.score;
+                      }
+
+                      auto chunk1 = std::find_if(impl_->chunks.begin(), impl_->chunks.end(), [&res1](const Chunk &chunk)
+                                                 { return chunk.id == res1.chunk_id; });
+
+                      auto chunk2 = std::find_if(impl_->chunks.begin(), impl_->chunks.end(), [&res2](const Chunk &chunk)
+                                                 { return chunk.id == res2.chunk_id; });
+
+                      if (chunk1->document_order != chunk2->document_order)
+                      {
+                          return chunk1->document_order < chunk2->document_order;
+                      }
+
+                      return res1.chunk_sequence < res2.chunk_sequence; });
+
+        if (results.size() > k)
+        {
+            results.resize(k);
+        }
+
+        return results;
     }
 
     // Helper Function designed to remove repeated query words
