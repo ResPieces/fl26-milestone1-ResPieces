@@ -2,6 +2,7 @@
 #include "aiws/text_processor.hpp"
 #include <stdexcept>
 #include <algorithm>
+#include <cmath>
 
 namespace aiws
 {
@@ -147,7 +148,7 @@ namespace aiws
 
         for (const Chunk &chunk : relaventChunks)
         {
-            double baseScore;
+            double baseScore = 0.0;
             std::size_t matched = 0;
 
             for (const std::string &term : queryTerms)
@@ -203,7 +204,7 @@ namespace aiws
 
                       return res1.chunk_sequence < res2.chunk_sequence; });
 
-        if (results.size() > k)
+        if (results.size() > static_cast<size_t>(k))
         {
             results.resize(k);
         }
@@ -218,10 +219,10 @@ namespace aiws
 
         std::vector<std::string> cleanTerms;
 
-        for (int i = 0; i < rawTerms.size(); i++)
+        for (size_t i = 0; i < rawTerms.size(); i++)
         {
             bool termAlreadyAdded = false;
-            for (int j = 0; j < cleanTerms.size(); j++)
+            for (size_t j = 0; j < cleanTerms.size(); j++)
             {
                 if (cleanTerms.at(j) == rawTerms.at(i))
                 {
@@ -249,12 +250,79 @@ namespace aiws
     bool truncated{};
     */
 
-    std::vector<ContextItem> ProcessingCore::build_context(const std::string &,
-                                                           int,
-                                                           std::size_t) const
+    std::vector<ContextItem> ProcessingCore::build_context(const std::string &query, int k, std::size_t token_budget) const
     {
         // TODO: build bounded context for the requested query.
-        return {};
+
+        if (k < 0)
+        {
+            throw std::invalid_argument("Invalid Input: k is negative");
+        }
+        else if (k == 0 || token_budget == 0)
+        {
+            return {};
+        }
+
+        std::vector<std::string> queryTerms = normalizeQuery(query);
+
+        if (queryTerms.empty())
+        {
+            return {};
+        }
+
+        std::vector<SearchResult> searchResults = search(query, k);
+
+        std::vector<ContextItem> output;
+        int tokensRemaining = token_budget;
+
+        for (SearchResult curResult : searchResults)
+        {
+
+            // Retrieves the current Chunk
+            Chunk curChunk;
+            for (const Chunk &chunk : impl_->chunks)
+            {
+                if (curResult.chunk_id == chunk.id)
+                {
+                    curChunk = chunk;
+                }
+            }
+
+            // If the entire chunk has less tokens than our remaining budget
+            if (curChunk.token_count <= tokensRemaining)
+            {
+                ContextItem curItem;
+                curItem.chunk_id = curResult.chunk_id;
+                curItem.document_id = curResult.document_id;
+                curItem.chunk_sequence = curResult.chunk_sequence;
+                curItem.text = curChunk.text;
+                curItem.token_count = curChunk.token_count;
+                curItem.score = curResult.score;
+                curItem.truncated = false;
+
+                output.push_back(curItem);
+                tokensRemaining -= curChunk.token_count;
+            }
+            else if (tokensRemaining != 0)
+            {
+                // Case for when the chunk has too many tokens
+                std::vector<std::string> terms = TextProcessor::terms(curChunk.text);
+
+                ContextItem curItem;
+                curItem.chunk_id = curResult.chunk_id;
+                curItem.document_id = curResult.document_id;
+                curItem.chunk_sequence = curResult.chunk_sequence;
+                curItem.text = TextProcessor::join(terms, 0, tokensRemaining);
+                curItem.token_count = tokensRemaining;
+                curItem.score = curResult.score;
+                curItem.truncated = true;
+
+                output.push_back(curItem);
+                tokensRemaining = 0;
+            }
+        }
+
+        return output;
     }
 
 } // namespace aiws
